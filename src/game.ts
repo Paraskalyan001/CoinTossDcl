@@ -9,23 +9,29 @@ engine.addEntity(base)
 
 
 let table = new Entity()
+let coin = new Entity()
+
+engine.addEntity(table)
+engine.addEntity(coin)
+
+coin.addComponent(new GLTFShape("models/coin_withTossAnim.glb"))
+
 table.addComponent(new GLTFShape("models/Lp_wc_As_table.glb"))
 table.addComponent(new Transform({
     position: new Vector3(8,0,4),
     // rotation: Quaternion.Euler(0,0,0),
 }))
-table.addComponent(new Animator())
-table.getComponent(Animator).addClip(new AnimationState("CylinderAction"))
+coin.addComponent(new Animator())
+coin.getComponent(Animator).addClip(new AnimationState("Toss"))
 table.addComponent(new AudioSource(new AudioClip("sounds/coin_toss_audio.mp3")))
 table.addComponent(
     new OnClick((): void => {
-        table.getComponent(Animator).getClip("CylinderAction").play();
+        coin.getComponent(Animator).getClip("Toss").play();
         table.getComponent(AudioSource).playOnce();
         log("toss");
     })  
 )
 
-engine.addEntity(table)
 
 
 
