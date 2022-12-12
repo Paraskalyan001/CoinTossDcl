@@ -15,14 +15,18 @@ engine.addEntity(table)
 engine.addEntity(coin)
 
 coin.addComponent(new GLTFShape("models/coin_withTossAnim.glb"))
-
 table.addComponent(new GLTFShape("models/Lp_wc_As_table.glb"))
+
+coin.addComponent(new Transform({
+    position: new Vector3(8,0,4),
+    // rotation: Quaternion.Euler(0,0,0),
+}))
 table.addComponent(new Transform({
     position: new Vector3(8,0,4),
     // rotation: Quaternion.Euler(0,0,0),
 }))
 coin.addComponent(new Animator())
-coin.getComponent(Animator).addClip(new AnimationState("Toss"))
+coin.getComponent(Animator).addClip(new AnimationState("Toss", {looping: false}))
 table.addComponent(new AudioSource(new AudioClip("sounds/coin_toss_audio.mp3")))
 table.addComponent(
     new OnClick((): void => {
