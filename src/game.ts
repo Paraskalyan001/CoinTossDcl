@@ -11,81 +11,7 @@ base.addComponent(
 );
 engine.addEntity(base);
 
-//----------------------------------
 
-let cylinder = new CylinderShape();
-
-let wheel1 = new Entity();
-wheel1.addComponent(cylinder);
-wheel1.addComponent(
-  new Transform({
-    position: new Vector3(6, 2, 11.9),
-    rotation: Quaternion.Euler(90, 0, 0),
-    scale: new Vector3(1, 0.05, 1),
-  })
-);
-
-engine.addEntity(wheel1);
-
-let wheel2 = new Entity();
-wheel2.addComponent(cylinder);
-wheel2.addComponent(
-  new Transform({
-    position: new Vector3(10, 2, 11.9),
-    rotation: Quaternion.Euler(90, 0, 0),
-    scale: new Vector3(1, 0.05, 1),
-  })
-);
-
-engine.addEntity(wheel2);
-
-let mymaterial = new Material();
-mymaterial.albedoTexture = new Texture("materials/hypno-wheel.png");
-
-wheel1.addComponent(mymaterial);
-wheel2.addComponent(mymaterial);
-
-wheel1.addComponent(
-  new OnPointerDown(
-    (e) => {
-      log("wiii");
-      new ui.OptionPrompt(
-        "Pick an option!",
-        "What will you choose?",
-        () => {
-          log(`picked option A`);
-        },
-        () => {
-          log(`picked option B`);
-        },
-        "Pick A",
-        "Pick B"
-      );
-    },
-    { button: ActionButton.POINTER, hoverText: "spin" }
-  )
-);
-
-wheel2.addComponent(
-  new OnPointerDown(
-    (e) => {
-      new ui.OptionPrompt(
-        "Pick an option!",
-        "What will you choose?",
-        () => {
-          log(`picked option A`);
-        },
-        () => {
-          log(`picked option B`);
-        },
-        "Pick A",
-        "Pick B"
-      );
-      log("wiii");
-    },
-    { button: ActionButton.POINTER, hoverText: "spin" }
-  )
-);
 
 //-------------------------------------
 
@@ -111,38 +37,13 @@ table.addComponent(
   })
 );
 coin.addComponent(new Animator());
-coin
-  .getComponent(Animator)
-  .addClip(new AnimationState("Toss", { looping: false }));
+coin.getComponent(Animator).addClip(new AnimationState("Toss", { looping: false }));
 table.addComponent(
   new AudioSource(new AudioClip("sounds/coin_toss_audio.mp3"))
 );
-table.addComponent(
-  new OnPointerDown(
-    (e) => {
-      log("toss event started");
-      let sum: number = 0;
-      let j: number = 0;
-      for (let i = 0; i < 11; i++) {
-        new ui.OptionPrompt(
-          "Toss!",
-          "choose a side",
-          () => {
-            log(`picked Tails`);
-            //   j = 0;
-          },
-          () => {
-            log(`picked heads`);
-            //   j = 1;
-          },
-          "Tails",
-          "Heads"
-        );
-        coin.getComponent(Animator).getClip("Toss").play();
-        table.getComponent(AudioSource).playOnce();
-        sum += subToss(j);
-      }
+// 
 
+function Results(sum:number){
       if (sum >= 6) {
         log("win");
         new ui.OkPrompt(
@@ -154,7 +55,8 @@ table.addComponent(
           true
         );
         // return 1;
-      } else {
+      } 
+      else {
         log("loss");
         new ui.OkPrompt(
           "Final Results : LOST",
@@ -166,11 +68,7 @@ table.addComponent(
         );
         // return 0;
       }
-    },
-    { button: ActionButton.POINTER, hoverText: "Toss" }
-  )
-);
-
+    }
 
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
@@ -202,3 +100,51 @@ function subToss(p1: number) {
 }
 
 // engine.addSystem(tossEvent)
+
+let sum: number = 0;
+var i=0;
+
+coinToss()
+
+function coinToss(){
+    table.addComponent(
+        new OnPointerDown(
+            (e) => {
+              log("toss event started");
+              let j: number = 0;
+                new ui.OptionPrompt(
+                  "Toss!" + i,
+                  "choose a side",
+                  () => {
+                    log(`picked Tails`);
+                    log(i)
+                    j = 0;
+                    i++;
+                    sum += subToss(j);
+                    if (i==11) {
+                      i=0;
+                      Results(sum)
+                    }
+                  },
+                  () => {
+                    log(`picked heads`);
+                    log(i)
+                    j = 1;
+                    i++;
+                    sum += subToss(j);
+                    if (i==11) {
+                      i=0;
+                      Results(sum)
+                    }
+                  },
+                  "Tails",
+                  "Heads"
+                  );
+                  coin.getComponent(Animator).getClip("Toss").play();
+                  table.getComponent(AudioSource).playOnce();
+            },
+            { button: ActionButton.POINTER, hoverText: "Toss" }
+          )
+
+    )
+}
