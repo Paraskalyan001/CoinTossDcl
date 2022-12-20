@@ -22,10 +22,12 @@
     "yarn": "please use npm"
   },
   "dependencies": {
+    "@dcl/ecs-scene-utils": "^1.7.5",
     "@dcl/ui-scene-utils": "^1.8.4",
     "csv-parser": "^3.0.0"
   },
   "bundleDependencies": [
+    "@dcl/ecs-scene-utils",
     "@dcl/ui-scene-utils"
   ]
 }

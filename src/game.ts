@@ -1,7 +1,14 @@
+//imports
 import * as ui from "@dcl/ui-scene-utils";
+import * as utils from "@dcl/ecs-scene-utils";
+import { requirePayment } from "@decentraland/EthereumController";
 
+//Global variables
+let sum: number = 0;
+var i = 0;
+
+//Extra entity theater
 let base = new Entity();
-
 base.addComponent(new GLTFShape("models/Theatre.glb"));
 base.addComponent(
   new Transform({
@@ -11,9 +18,11 @@ base.addComponent(
 );
 engine.addEntity(base);
 
-
-
 //-------------------------------------
+
+// Main code
+
+// adding entity table and coin with audio and animation
 
 let table = new Entity();
 let coin = new Entity();
@@ -37,43 +46,46 @@ table.addComponent(
   })
 );
 coin.addComponent(new Animator());
-coin.getComponent(Animator).addClip(new AnimationState("Toss", { looping: false }));
+coin
+  .getComponent(Animator)
+  .addClip(new AnimationState("Toss", { looping: false }));
 table.addComponent(
   new AudioSource(new AudioClip("sounds/coin_toss_audio.mp3"))
 );
-// 
 
-function Results(sum:number){
-      if (sum >= 6) {
-        log("win");
-        new ui.OkPrompt(
-          "Final Results : WON",
-          () => {
-            log(`store data here`);
-          },
-          "Next",
-          true
-        );
-        // return 1;
-      } 
-      else {
-        log("loss");
-        new ui.OkPrompt(
-          "Final Results : LOST",
-          () => {
-            log(`store data here`);
-          },
-          "Next",
-          true
-        );
-        // return 0;
-      }
-    }
+// fucntion for showing final results out of 11 tosses
+function Results(sum: number) {
+  if (sum >= 6) {
+    log("win");
+    new ui.OkPrompt(
+      "Final Results : WON",
+      () => {
+        log(`store data here`);
+      },
+      "Next",
+      true
+    );
+    // return 1;
+  } else {
+    log("loss");
+    new ui.OkPrompt(
+      "Final Results : LOST",
+      () => {
+        log(`store data here`);
+      },
+      "Next",
+      true
+    );
+    // return 0;
+  }
+}
 
+// random number genrator
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
 }
 
+// subtoss function calculates the resultes of a round and updates sum according to it
 function subToss(p1: number) {
   let r: Number = getRandomInt(2);
   if (r == p1) {
@@ -85,7 +97,7 @@ function subToss(p1: number) {
       "Next",
       true
     );
-    return 0;
+    sum++;
   } else {
     new ui.OkPrompt(
       "You Lost ",
@@ -95,56 +107,53 @@ function subToss(p1: number) {
       "Next",
       true
     );
-    return 1;
   }
 }
 
-// engine.addSystem(tossEvent)
-
-let sum: number = 0;
-var i=0;
-
-coinToss()
-
-function coinToss(){
-    table.addComponent(
-        new OnPointerDown(
-            (e) => {
-              log("toss event started");
-              let j: number = 0;
-                new ui.OptionPrompt(
-                  "Toss!" + i,
-                  "choose a side",
-                  () => {
-                    log(`picked Tails`);
-                    log(i)
-                    j = 0;
-                    i++;
-                    sum += subToss(j);
-                    if (i==11) {
-                      i=0;
-                      Results(sum)
-                    }
-                  },
-                  () => {
-                    log(`picked heads`);
-                    log(i)
-                    j = 1;
-                    i++;
-                    sum += subToss(j);
-                    if (i==11) {
-                      i=0;
-                      Results(sum)
-                    }
-                  },
-                  "Tails",
-                  "Heads"
-                  );
-                  coin.getComponent(Animator).getClip("Toss").play();
-                  table.getComponent(AudioSource).playOnce();
-            },
-            { button: ActionButton.POINTER, hoverText: "Toss" }
-          )
-
-    )
+//delay function this plays audio and animations and calls for main subtoss function after a delay of 2000ms
+function subTossHelper(p1: number) {
+  coin.getComponent(Animator).getClip("Toss").play();
+  table.getComponent(AudioSource).playOnce();
+  utils.setTimeout(2000, () => {
+    subToss(p1);
+  });
 }
+
+// this functions adds a onpointer on table so when you click on table it does following
+// updates i so we can do toss upto 11 rounds and after that a final resut will be give and calls subtoss function on basis of option selected by player
+function coinToss() {
+  table.addComponent(
+    new OnPointerDown(
+      (e) => {
+
+        log("toss event started");
+
+        i++;
+        if (i == 11) {
+          i = 0;
+          Results(sum);
+          return;
+        }
+
+        new ui.OptionPrompt(
+          "Toss!" + i,
+          "choose a side",
+          () => {
+            log(`picked Tails`);
+            subTossHelper(0);
+          },
+          () => {
+            log(`picked heads`);
+            subTossHelper(1);
+          },
+          "Tails",
+          "Heads"
+        );
+      },
+      { button: ActionButton.POINTER, hoverText: "Toss" }
+    )
+  );
+}
+
+coinToss();
+
