@@ -129,7 +129,7 @@ function coinToss() {
         log("toss event started");
 
         i++;
-        if (i == 11) {
+        if (i == 12) {
           i = 0;
           Results(sum);
           return;
