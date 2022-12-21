@@ -55,7 +55,7 @@ table.addComponent(
 
 // fucntion for showing final results out of 11 tosses
 function Results(sum: number) {
-  if (sum >= 6) {
+  if (sum > 0) {
     log("win");
     new ui.OkPrompt(
       "Final Results : WON",
@@ -89,20 +89,23 @@ function getRandomInt(max: number) {
 function subToss(p1: number) {
   let r: Number = getRandomInt(2);
   if (r == p1) {
+    sum++;
     new ui.OkPrompt(
       "You won ",
       () => {
         log(`Correct prediction`);
+        Toss();
       },
       "Next",
       true
-    );
-    sum++;
-  } else {
-    new ui.OkPrompt(
-      "You Lost ",
-      () => {
-        log(`Wrong prediction`);
+      );
+    } else {
+      sum--;
+      new ui.OkPrompt(
+        "You Lost ",
+        () => {
+          log(`Wrong prediction`);
+          Toss();
       },
       "Next",
       true
@@ -119,41 +122,44 @@ function subTossHelper(p1: number) {
   });
 }
 
+function Toss(){
+  i++;
+  if (i == 12) {
+    i = 0;
+    Results(sum);
+    return;
+  }
+
+  new ui.OptionPrompt(
+    "Toss!" + i,
+    "choose a side",
+    () => {
+      log(`picked Tails`);
+      subTossHelper(0);
+    },
+    () => {
+      log(`picked heads`);
+      subTossHelper(1);
+    },
+    "Tails",
+    "Heads"
+  );
+}
+
 // this functions adds a onpointer on table so when you click on table it does following
 // updates i so we can do toss upto 11 rounds and after that a final resut will be give and calls subtoss function on basis of option selected by player
-function coinToss() {
+function coinTossClicker() {
   table.addComponent(
     new OnPointerDown(
       (e) => {
 
         log("toss event started");
-
-        i++;
-        if (i == 12) {
-          i = 0;
-          Results(sum);
-          return;
-        }
-
-        new ui.OptionPrompt(
-          "Toss!" + i,
-          "choose a side",
-          () => {
-            log(`picked Tails`);
-            subTossHelper(0);
-          },
-          () => {
-            log(`picked heads`);
-            subTossHelper(1);
-          },
-          "Tails",
-          "Heads"
-        );
+        Toss();
       },
       { button: ActionButton.POINTER, hoverText: "Toss" }
     )
   );
 }
 
-coinToss();
+coinTossClicker();
 
